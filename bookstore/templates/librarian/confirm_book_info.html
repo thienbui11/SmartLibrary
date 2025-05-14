@@ -1,0 +1,42 @@
+{% extends 'librarian/base.html' %}
+{% block body %}
+<div class="container mt-5">
+    <div class="card">
+        <div class="card-header">Confirm Extracted Book Information</div>
+        <div class="card-body">
+            <form action="{% url 'labook' %}" method="POST" enctype="multipart/form-data">
+                {% csrf_token %}
+                <div class="form-group">
+                    <label>Title</label>
+                    <input type="text" class="form-control" name="title" value="{{ title }}" required>
+                </div>
+                <div class="form-group">
+                    <label>Author</label>
+                    <input type="text" class="form-control" name="author" value="{{ author }}" required>
+                </div>
+                <div class="form-group">
+                    <label>Publisher</label>
+                    <input type="text" class="form-control" name="publisher" placeholder="Publisher" required>
+                </div>
+                <div class="form-group">
+                    <label>Publication Year</label>
+                    <input type="text" class="form-control" name="year" placeholder="Year" required>
+                </div>
+                <div class="form-group">
+                    <label>Description</label>
+                    <input type="text" class="form-control" name="desc" placeholder="Description" required>
+                </div>
+                <div class="form-group">
+                    <label>Upload Cover Again</label>
+                    <input type="file" class="form-control" name="cover" required>
+                </div>
+                <div class="form-group">
+                    <label>Upload PDF</label>
+                    <input type="file" class="form-control" name="pdf" required>
+                </div>
+                <button type="submit" class="btn btn-primary">Add Book</button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

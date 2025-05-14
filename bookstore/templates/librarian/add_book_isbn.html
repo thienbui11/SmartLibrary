@@ -1,0 +1,21 @@
+  {% extends 'librarian/base.html' %}
+  {% load static %}
+  
+  {% block body %}
+  <div class="col-md-8 col-sm-5 col-xs-5">
+  <div id="content" class="p-6 p-md-5 pt-5">
+      <div class="card mb-3">
+          <div class="card-header">
+              <i class="fas fa-table text-primary"></i> Add Book By ISBN
+          </div>
+          <div class="card-body">
+              <form action="{% url 'labookisbn' %}" method="POST" enctype="multipart/form-data">
+                  {% csrf_token %}
+                  {{ form.as_p }}
+                <button type="submit">Tìm và thêm sách</button>
+              </form>
+          </div>
+      </div>
+  </div>
+  </div>
+  {% endblock %}
