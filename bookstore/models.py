@@ -90,10 +90,9 @@ class BookScanHistory(models.Model):
     scanned_at = models.DateTimeField(auto_now_add=True)
     
 class Chat(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='bookstore_chats')
     message = models.TextField()
     posted_at = models.DateTimeField(auto_now=True, null=True)
-
 
     def __str__(self):
         return str(self.message)

@@ -936,28 +936,36 @@ def asearch(request):
                     return render(request,'dashboard/result.html',{'files':files,'word':word})
                 return render(request,'dashboard/result.html',{'files':files,'word':word})
 
-@login_required
-def recommend_books(request):
+def library_home(request):
     user = request.user
     interactions = UserBookInteraction.objects.filter(user=user).order_by('-timestamp')[:10]
-    if not interactions:
-        return render(request, 'recommendation.html', {'books': []})
+    
+    # Get recommended books based on user interactions
+    if interactions:
+        book_embeddings = [get_book_embedding(inter.book) for inter in reversed(interactions)]
+        input_tensor = torch.tensor(np.stack(book_embeddings)).unsqueeze(1)
 
-    book_embeddings = [get_book_embedding(inter.book) for inter in reversed(interactions)]
-    input_tensor = torch.tensor(np.stack(book_embeddings)).unsqueeze(1)
+        model = RecTransformer(n_books=Book.objects.count())
+        model.load_state_dict(torch.load('bookstore/recommend/model.pt'))
+        model.eval()
 
-    model = RecTransformer(n_books=Book.objects.count())
-    model.load_state_dict(torch.load('bookstore/recommend/model.pt'))
-    model.eval()
+        with torch.no_grad():
+            logits = model(input_tensor)
+            top_indices = torch.topk(logits[0], 5).indices.tolist()
 
-    with torch.no_grad():
-        logits = model(input_tensor)
-        top_indices = torch.topk(logits[0], 5).indices.tolist()
+        all_books = list(Book.objects.all())
+        recommended_books = [all_books[i] for i in top_indices]
+    else:
+        # If no interactions, get latest books as recommendations
+        recommended_books = Book.objects.order_by('-id')[:4]
 
-    all_books = list(Book.objects.all())
-    recommended_books = [all_books[i] for i in top_indices]
+    # Get discover books (next 12 books after recommendations)
+    discover_books = Book.objects.order_by('-id')[4:16]
 
-    return render(request, 'recommendation.html', {'books': recommended_books})
+    return render(request, 'library_home.html', {
+        'recommend_books': recommended_books,
+        'discover_books': discover_books,
+    })
 
 def book_grid_view(request):
     # Lấy tất cả sách hoặc lọc theo thể loại nếu có
@@ -973,8 +981,6 @@ def book_grid_view(request):
         'categories': categories,
         'selected_category': category,
     })
-
-
 
 
 

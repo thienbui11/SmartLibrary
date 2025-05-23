@@ -46,14 +46,14 @@
         <a class="nav-link" href="{% url 'ulchat' %}">Group Chat</a>
       </li> {% endcomment %}
       <li class="nav-item">
-        <a class="nav-link" href="{% url 'request_form' %}">Delete Request</a>
+        <a class="nav-link" href="{% url 'library_home' %}">Library</a>
       </li>
       <li class="nav-item">
-        <a class="nav-link" href="{% url 'request_form' %}">Chat</a>
+        <a class="nav-link" href="{% url 'chat-with-bot' %}">Chat</a>
       </li>
-      <li class="nav-item">
-        <a class="nav-link" href="{% url 'feedback_form' %}">Send Feedback</a>
-      </li>
+      {% comment %} <li class="nav-item">
+        <a class="nav-link" href="{% url 'recommnedation' %}">Recommend</a>
+      </li> {% endcomment %}
       <li class="nav-item">
         <a class="nav-link" href="{% url 'about' %}">About Us</a>
       </li>

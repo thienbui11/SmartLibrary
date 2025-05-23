@@ -15,7 +15,8 @@ urlpatterns = [
 
 
 path('books/', views.book_grid_view, name='book_grid'),
-path('recommnedation/', views.recommend_books, name='recommend_books'),
+path('libraryview/', views.library_home, name='library_home'),
+
  # Librarian URL's
  path('librarian/', views.librarian, name='librarian'),
  path('labook_form/', views.labook_form, name='labook_form'),

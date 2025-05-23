@@ -1,0 +1,357 @@
+{% extends 'publisher/base.html' %}
+
+{% block title %}Chat bot{% endblock %}
+
+{% block content %}
+
+{% load static %}
+<style>
+    body, html {
+        height: 100%;
+        margin: 0;
+        padding: 0;
+    }
+
+    .content-section {
+        height: calc(100vh - 60px); /* Trừ đi chiều cao của header */
+        display: flex;
+        flex-direction: column;
+        position: relative;
+    }
+
+    .messages-box {
+        flex: 1;
+        overflow-y: auto;
+        padding-bottom: 70px; /* Tạo khoảng trống cho form nhập tin nhắn */
+    }
+
+    .messages-list {
+        padding-left: 0;
+    }
+
+    .message {
+        margin-bottom: 15px;
+        list-style: none;
+        word-wrap: break-word;
+        word-break: break-word;
+    }
+
+    .message-text {
+        padding: 3px;
+        border-radius: 5px;
+    }
+
+    .sent {
+        align-self: flex-end;
+    }
+
+    .received {
+        align-self: flex-start;
+    }
+
+    .chat-form {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        padding: 10px;
+        background-color: #f8f9fa;
+        border-top: 1px solid #dee2e6;
+    }
+
+    .message-input {
+        flex: 1;
+        border-radius: 0;
+        border-right: none;
+    }
+
+    .btn-send {
+        border-radius: 0;
+    }
+
+    .chat-container {
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+    }
+    .bg-grey {
+        background-color: #DCDCDC !important;
+    }
+    .bg-alice {
+        background-color: #CBF0FF !important;
+    }
+    .responses {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start; /* Căn các phần tử theo chiều dọc */
+    }
+
+    .response-container {
+        margin-bottom: 20px; /* Khoảng cách giữa các response */
+    }
+
+    /* Style cho khung phản hồi */
+    .response-item {
+        padding: 15px;
+        background-color: #f8f9fa; /* Màu nền nhẹ */
+        border-radius: 8px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        line-height: 1.6;
+        font-size: 14px;
+        color: #333;
+    }
+
+    /* Căn chỉnh cho nút Like và Dislike */
+    .response-actions {
+        text-align: left; /* Căn trái */
+        margin-top: 10px;
+    }
+
+    .response-actions .btn {
+        min-width: 80px;
+        padding: 8px 15px;
+        font-size: 14px;
+        border-radius: 4px;
+    }
+
+    .response-actions .btn + .btn {
+        margin-left: 10px; /* Khoảng cách giữa các nút */
+    }
+
+    .bg-gray {
+        background-color: #f8f9fa;
+        padding: 15px;
+        position: relative;
+        z-index: 1;
+    }
+
+    .img-cont2 {
+        position: relative;
+        display: inline-block;
+        vertical-align: middle;
+    }
+
+    .online-circle3 {
+        position: absolute;
+        bottom: 0;
+        right: 0;
+        width: 12px;
+        height: 12px;
+        background-color: #4CAF50;
+        border-radius: 50%;
+        border: 2px solid #fff;
+    }
+
+    .bot-header {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+    }
+
+    .bot-header h5 {
+        margin: 0;
+        display: flex;
+        align-items: center;
+    }
+
+    .container.content-section {
+        background: #f8f9fa;
+        border-radius: 12px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+        min-height: 80vh;
+        display: flex;
+        flex-direction: column;
+        padding: 0;
+    }
+        
+    
+    
+</style>
+
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+
+<div class="col-md-10 m-auto" style="padding-top: 24px; padding-bottom: 24px;">
+    <div class="container content-section px-0 py-0">
+        <div class="bg-gray">
+            <div class="bot-header">
+                <div class="img-cont2">              
+                    <img src="https://img.icons8.com/?size=100&id=L3uh0mNuxBXw&format=png&color=000000" alt="bot" width="50" height="50" class="rounded-circle">
+                    <span class="online-circle3"></span>  
+                </div>
+                <h5>Chat bot</h5>
+            </div>
+            <hr class="my-2">
+        </div>
+        <div class="card-body messages-box">
+            <ul class="list-unstyled messages-list">
+                {% for chat in chats %}
+                    {% if chat.user == request.user %}
+                        <!-- Tin nhắn người dùng -->
+                        <li class="sent bg-primary rounded py-2 px-3 mb-2 media w-75 ml-auto mb-3">
+                            <div class="message-text">
+                                <div class="mb-0 text-white message-content">
+                                    {{ chat.message }}
+                                </div>
+                            </div>
+                        </li>
+        
+                        <!-- Khung Response -->
+                        <li class="message responses d-flex flex-column mb-2">
+                            <div class="response-container d-flex flex-row justify-content-between w-100">
+                                <div class="d-flex flex-column w-100 pr-2">
+                                    <div class="response-item bg-grey rounded py-2 px-3">
+                                        <div class="message-text">
+                                            <p class="mb-0 text-dark message-content">
+                                                {{ chat.response|safe }}
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </li>
+                    {% endif %}
+                {% endfor %}
+            </ul>
+            <div id="selectedActionItem" style="display: none;">
+                <div id="selectedActionContent"></div>
+            </div>
+        </div>
+    <form class="bg-light chat-form">
+        {% csrf_token %}
+        <div class="input-group">
+            <input type="text" class="form-control message-input rounded-0 border-0 py-4 bg-light" placeholder="Nhập tin nhắn...">
+            <div class="input-group-append">
+                <button type="submit" class="btn btn-primary btn-send">Gửi</button>
+            </div>
+        </div>
+    </form>
+</div>
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const processMessageContent = (content) => {
+            content = content.replace(/\*\*(.*?)\*\*/g, '<b>$1</b>');
+            content = content.replace(/(\d+\. )/g, '<br>$1');
+            content = content.replace(/\*\s?/g, '<br>- ');
+            content = content.replace(/([.:])\s*-\s+/g, '$1<br>- ');
+    
+            return content;
+        };
+    
+        document.querySelectorAll('.response-item').forEach(o => {
+            o.innerHTML = processMessageContent(o.innerText);
+        });
+    
+        const messagesList = document.querySelector('.messages-list');
+        const messageForm = document.querySelector('.chat-form');
+        const messageInput = document.querySelector('.message-input');
+    
+        const scrollToBottom = () => {
+            messagesList.scrollTop = messagesList.scrollHeight;
+        };
+    
+        messageForm.addEventListener('submit', (event) => {
+            event.preventDefault();
+        
+            const message = messageInput.value.trim();
+            if (message.length === 0) return;
+        
+            // Hiển thị tin nhắn người dùng
+            const userMessageItem = document.createElement('li');
+            userMessageItem.classList.add('message', 'sent');
+            userMessageItem.innerHTML = `
+                <div class="message-text bg-primary rounded py-2 px-3 mb-2 media w-75 ml-auto mb-3">
+                    <div class="message-content mb-0 text-white">
+                        ${processMessageContent(message)}
+                    </div>
+                </div>`;
+            messagesList.appendChild(userMessageItem);
+            messageInput.value = '';
+            scrollToBottom();
+        
+            // Tạo khung phản hồi (chỉ 1 khung)
+            const responseItem = document.createElement('li');
+            responseItem.classList.add('message', 'responses', 'd-flex', 'flex-column', 'mb-2');
+        
+            // Tạo container cho response
+            const responseContainer = document.createElement('div');
+            responseContainer.classList.add('response-container', 'd-flex', 'flex-row', 'justify-content-between', 'w-100');
+            responseItem.appendChild(responseContainer);
+        
+            // Khung Response 1 (duy nhất)
+            const response1Wrapper = document.createElement('div');
+            response1Wrapper.classList.add('d-flex', 'flex-column', 'w-100', 'pr-2');
+            const response1Item = document.createElement('div');
+            response1Item.classList.add('response-item', 'bg-grey', 'rounded', 'py-2', 'px-3');
+            response1Item.innerHTML = `
+                <div class="message-text">
+                    <div class="mb-0 text-dark message-content"></div>
+                </div>
+                <div class="response-actions mt-2">
+                    <button class="btn-sm like-btn" data-feedback-id="feedback_1" data-response-type="response_1" data-action="like">
+                        <img src="/static/blog/images/like.png" alt="Like" class="icon-btn" style="height: 30px;">
+                    </button>
+                    <button class="btn-sm dislike-btn" data-feedback-id="feedback_1" data-response-type="response_1" data-action="dislike">
+                        <img src="/static/blog/images/unlike.png" alt="Dislike" class="icon-btn" style="height: 30px;">
+                    </button>
+                </div>`;
+            response1Wrapper.appendChild(response1Item);
+            responseContainer.appendChild(response1Wrapper);
+        
+            messagesList.appendChild(responseItem);
+        
+            const response1Content = response1Item.querySelector('.message-content');
+            const loadingSpinner = document.createElement('div');
+            loadingSpinner.classList.add('loading-spinner');
+            loadingSpinner.innerHTML = `<div class="spinner"></div>`;
+            response1Item.querySelector('.message-text').appendChild(loadingSpinner);
+        
+            scrollToBottom();
+        
+            fetch('', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: new URLSearchParams({
+                    'csrfmiddlewaretoken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+                    'message': message
+                }),
+                timeout: 30000
+            })
+            .then((response) => {
+                const reader = response.body.getReader();
+                const decoder = new TextDecoder();
+        
+                let localBuffer = '';
+        
+                function readChunk() {
+                    reader.read().then(({ done, value }) => {
+                        if (done) {
+                            loadingSpinner.remove();
+                            MathJax.typesetPromise();
+                            return;
+                        }
+        
+                        const textChunk = decoder.decode(value, { stream: true });
+                        localBuffer += textChunk;
+        
+                        // Toàn bộ phản hồi cho response1
+                        response1Content.innerHTML = processMessageContent(localBuffer);
+        
+                        scrollToBottom();
+                        readChunk();
+                    });
+                }
+        
+                readChunk();
+            })
+        
+        });
+                        
+    });
+</script>
+    
+<script type="text/javascript" id="MathJax-script" async
+    src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
+</script>
+{% endblock %}
