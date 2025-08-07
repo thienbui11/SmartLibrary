@@ -1,6 +1,8 @@
 # SMART AI LIBRARY FOR HCMUTE STUDENTS
 
 ![image](https://github.com/user-attachments/assets/cc9257d0-6e90-4203-a296-2c9727aaa182)
+## Video Demo
+https://www.youtube.com/watch?v=bMfWCtErVtM
 
 ## Description
 
